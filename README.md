@@ -1,7 +1,5 @@
-# Next.js + Contentlayer
+# practice noticing & writing sentences
 
-A template with Next.js 13 app dir, Contentlayer, Tailwind CSS and dark mode.
+A blog (and maybe other things) built off of the template found [here][1].
 
-https://next-contentlayer.vercel.app
-
-
+[1]: https://github.com/shadcn/next-contentlayer?tab=readme-ov-file
