@@ -1,0 +1,66 @@
+name: Auto-merge Content Changes
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-and-merge:
+    name: Check and Auto-merge
+    runs-on: ubuntu-latest
+
+    # Only run if PR is from a topic branch (not a fork)
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if only content files changed
+        id: check-files
+        run: |
+          # Get list of changed files
+          git fetch origin main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Check if all changed files are in content/ directory
+          ONLY_CONTENT=true
+          while IFS= read -r file; do
+            if [[ ! "$file" =~ ^content/ ]]; then
+              echo "Non-content file changed: $file"
+              ONLY_CONTENT=false
+              break
+            fi
+          done <<< "$CHANGED_FILES"
+
+          echo "only_content=$ONLY_CONTENT" >> $GITHUB_OUTPUT
+
+          if [ "$ONLY_CONTENT" = true ]; then
+            echo "✅ Only content files changed - eligible for auto-merge"
+          else
+            echo "❌ Non-content files changed - manual review required"
+          fi
+
+      - name: Wait for CI checks
+        if: steps.check-files.outputs.only_content == 'true'
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Lint and Build'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
+      - name: Auto-merge PR
+        if: steps.check-files.outputs.only_content == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "Auto-merging PR #$PR_NUMBER"
+          gh pr merge $PR_NUMBER --merge --auto

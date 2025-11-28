@@ -1,0 +1,60 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          git fetch origin main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Skip review if only content files changed
+          ONLY_CONTENT=true
+          while IFS= read -r file; do
+            if [[ ! "$file" =~ ^content/ ]] && [[ -n "$file" ]]; then
+              ONLY_CONTENT=false
+              break
+            fi
+          done <<< "$CHANGED_FILES"
+
+          echo "only_content=$ONLY_CONTENT" >> $GITHUB_OUTPUT
+
+      - name: AI Code Review with Claude
+        if: steps.changed-files.outputs.only_content == 'false'
+        uses: anthropics/claude-code-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Skip review comment
+        if: steps.changed-files.outputs.only_content == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Only content files changed - skipping code review.'
+            })
