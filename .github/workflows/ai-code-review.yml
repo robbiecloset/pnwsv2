@@ -41,15 +41,15 @@ jobs:
 
       - name: AI Code Review with Claude
         if: steps.changed-files.outputs.only_content == 'false'
-        uses: freeedcom/ai-codereviewer@v2.5.1
+        uses: coderabbitai/ai-pr-reviewer@latest
         with:
+          debug: false
+          review_simple_changes: false
+          review_comment_lgtm: false
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_MODEL: claude-sonnet-4-20250514
-          OPENAI_API_BASE_URL: https://api.anthropic.com/v1
-          exclude: "**/*.json,**/*.md,**/*.mdx,pnpm-lock.yaml,**/*.css"
-          language: en-US
-          review_comment_lgtm: false
 
       - name: Skip review comment
         if: steps.changed-files.outputs.only_content == 'true'
