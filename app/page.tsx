@@ -6,14 +6,14 @@ export default function Home() {
 
   return (
     <div className="py-16 md:py-24">
-      <div className="mb-16 md:mb-24">
+      {/* <div className="mb-16 md:mb-24">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-          Welcome
+          the latest
         </h1>
         <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl">
           Thoughts, stories, and ideas
         </p>
-      </div>
+      </div> */}
 
       <div className="grid gap-12 md:gap-16">
         {posts.map((post) => (
