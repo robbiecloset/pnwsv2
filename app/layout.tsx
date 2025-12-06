@@ -8,7 +8,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "My Blog",
+  title: "practice noticing & writing sentences",
   description: "Thoughts and writings",
 }
 
@@ -27,10 +27,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <div className="max-w-1500 mx-auto px-4vw md:px-6vw py-6">
               <div className="flex items-center justify-between">
                 <Link href="/" className="text-2xl font-bold hover:text-felt-blue transition-colors">
-                  My Blog
+                  practice noticing & writing sentences
                 </Link>
                 <nav className="flex items-center gap-8 text-sm font-medium">
-                  <Link href="/" className="hover:text-felt-blue transition-colors">Home</Link>
                   <Link href="/about" className="hover:text-felt-blue transition-colors">About</Link>
                   <ModeToggle />
                 </nav>
