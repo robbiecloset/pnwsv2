@@ -31,6 +31,7 @@
     "typescript": "^5.7.2"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
     "eslint-config-next": "^16.0.7"
   }
 }
